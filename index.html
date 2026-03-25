@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#0A0A0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>RAC Sales Training Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0F;--s:#111118;--s2:#1A1A24;--s3:#22222E;
+  --b:#252532;--b2:#323240;
+  --t:#E4E4F0;--t2:#8888A0;--t3:#55556A;
+  --orange:#FF6B2B;--orange-bg:#261408;
+  --blue:#4A8FE0;--blue-bg:#0A1828;
+  --green:#2EBD6A;--green-bg:#0A2018;
+  --amber:#E09000;--amber-bg:#251E00;
+  --red:#E04444;--red-bg:#2A1010;
+  --purple:#8B5CF6;--purple-bg:#1A1030;
+  --font:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+  --r:8px;--rl:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font);font-size:14px;line-height:1.5;overflow-x:hidden}
+a{color:var(--blue);text-decoration:none}
+button{font-family:var(--font);cursor:pointer}
+
+.app{max-width:780px;margin:0 auto;padding:14px 12px 80px}
+
+/* HEADER */
+.hdr{text-align:center;padding:22px 0 18px;border-bottom:1px solid var(--b);margin-bottom:18px}
+.hdr-eyebrow{font-size:10px;font-family:var(--mono);color:var(--t3);letter-spacing:3px;text-transform:uppercase;margin-bottom:5px}
+.hdr-title{font-size:24px;font-weight:600;color:var(--t);letter-spacing:.5px}
+.hdr-sub{font-size:11px;color:var(--t2);margin-top:3px;font-family:var(--mono)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:10px 12px;text-align:center}
+.stat-v{font-size:22px;font-weight:600;color:var(--t);font-family:var(--mono)}
+.stat-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* COLLAPSIBLE */
+.collapsible{border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.coll-toggle{width:100%;background:var(--s2);border:none;padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-family:var(--mono);color:var(--t2);text-transform:uppercase;letter-spacing:1px}
+.coll-toggle:hover{color:var(--t)}
+.coll-body{display:none;border-top:1px solid var(--b)}
+.coll-body.open{display:block}
+.nn-row{display:flex;gap:10px;padding:8px 14px;border-bottom:1px solid var(--b);align-items:flex-start}
+.nn-row:last-child{border-bottom:none}
+.nn-num{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--orange);min-width:16px;padding-top:1px}
+.nn-txt{font-size:12px;color:var(--t2);line-height:1.5}
+.nn-txt b{color:var(--t)}
+
+/* CATEGORY GRID */
+.sec-lbl{font-size:10px;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.cat-btn{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:10px 10px 8px;cursor:pointer;text-align:left;transition:all .15s}
+.cat-btn:hover{border-color:var(--b2);background:var(--s2)}
+.cat-btn.active{border-color:var(--orange);background:var(--orange-bg)}
+.cat-ic{font-size:15px;margin-bottom:4px;display:block}
+.cat-nm{font-size:12px;font-weight:600;color:var(--t);display:block;line-height:1.3}
+.cat-sb{font-size:10px;color:var(--t2);display:block;margin-top:2px;line-height:1.3}
+.cat-btn.active .cat-nm{color:var(--orange)}
+.cat-btn.active .cat-sb{color:var(--amber)}
+
+/* GEN BUTTON */
+.gen-btn{width:100%;padding:12px;background:var(--orange);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.3px;margin-bottom:18px;transition:opacity .15s}
+.gen-btn:hover{opacity:.9}
+.gen-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* SCENARIO CARD */
+.sc-card{background:var(--s);border:1px solid var(--b);border-radius:var(--rl);overflow:hidden;margin-bottom:14px}
+.sc-hdr{padding:11px 15px;background:var(--s2);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sc-badge{font-size:10px;font-weight:600;font-family:var(--mono);padding:3px 10px;border-radius:20px;letter-spacing:.5px}
+.sc-sit{font-size:12px;color:var(--t2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-diff{font-size:11px;font-weight:600;font-family:var(--mono)}
+.sc-body{padding:14px 15px}
+
+/* CUSTOMER INFO */
+.ci-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;margin-bottom:12px}
+.ci-item{background:var(--s2);border:1px solid var(--b);border-radius:var(--r);padding:7px 10px}
+.ci-lbl{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:2px}
+.ci-val{font-size:13px;font-weight:500;color:var(--t)}
+.ci-val.danger{color:var(--red)}
+
+/* SITUATION BOX */
+.sit-box{background:var(--s2);border-left:3px solid var(--blue);border-radius:0 var(--r) var(--r) 0;padding:9px 13px;margin-bottom:12px}
+.sit-lbl{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:3px}
+.sit-txt{font-size:12px;color:var(--t2);line-height:1.5}
+.sit-txt b{color:var(--t)}
+
+/* CHAT */
+.chat-wrap{border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:11px}
+.chat-msgs{min-height:180px;max-height:320px;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:11px;background:var(--bg)}
+.msg{display:flex;flex-direction:column;gap:3px;max-width:86%}
+.msg.customer{align-self:flex-start}
+.msg.rep{align-self:flex-end}
+.msg.system{align-self:center;max-width:94%}
+.msg-lbl{font-size:10px;font-family:var(--mono);color:var(--t3)}
+.msg.rep .msg-lbl{text-align:right}
+.bubble{padding:9px 13px;font-size:13px;line-height:1.55}
+.msg.customer .bubble{background:var(--s);border:1px solid var(--b2);color:var(--t);border-radius:3px 12px 12px 12px}
+.msg.rep .bubble{background:var(--orange);color:#fff;border-radius:12px 3px 12px 12px}
+.msg.system .bubble{background:transparent;border:1px dashed var(--b2);color:var(--t2);border-radius:var(--r);font-size:12px;font-style:italic}
+.typing-row{display:flex;align-items:center;gap:5px;padding:9px 13px;background:var(--s);border:1px solid var(--b2);border-radius:3px 12px 12px 12px;width:fit-content}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--t3);animation:bop 1.1s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.input-row{display:flex;gap:7px;padding:9px 10px;border-top:1px solid var(--b);background:var(--s)}
+.input-row input{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:8px 11px;font-size:13px;color:var(--t);font-family:var(--font);outline:none;transition:border-color .15s}
+.input-row input::placeholder{color:var(--t3)}
+.input-row input:focus{border-color:var(--orange)}
+.input-row button{padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;white-space:nowrap;transition:opacity .15s}
+.input-row button:hover{opacity:.9}
+.input-row button:disabled{opacity:.35;cursor:not-allowed}
+
+/* PILLS */
+.pills-section{margin-bottom:10px}
+.pills-lbl{font-size:9px;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.pills{display:flex;flex-wrap:wrap;gap:5px}
+.pill{background:var(--s2);border:1px solid var(--b2);border-radius:20px;padding:4px 11px;font-size:11px;color:var(--t2);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.pill:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-bg)}
+
+/* SCRIPT REF */
+.script-wrap{border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.script-toggle{width:100%;background:var(--s2);border:none;padding:9px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-family:var(--mono);color:var(--t2);text-transform:uppercase;letter-spacing:1px}
+.script-toggle:hover{color:var(--t)}
+.script-lines{display:none;padding:11px 13px;border-top:1px solid var(--b)}
+.script-lines.open{display:block}
+.sline{font-size:12px;color:var(--t2);font-style:italic;padding:5px 0;border-bottom:1px solid var(--b);line-height:1.55}
+.sline:last-child{border-bottom:none}
+
+/* COACHING */
+.coaching{background:var(--green-bg);border:1px solid var(--green);border-radius:var(--r);padding:12px 14px;margin-bottom:11px;display:none}
+.coaching.show{display:block}
+.coaching-hdr{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:7px;opacity:.8}
+.coaching-txt{font-size:13px;color:var(--green);line-height:1.7}
+
+/* ACTIONS */
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.act{padding:8px 15px;background:transparent;border:1px solid var(--b2);border-radius:var(--r);font-size:12px;color:var(--t2);cursor:pointer;transition:all .15s}
+.act:hover{border-color:var(--t3);color:var(--t)}
+.act.primary{border-color:var(--orange);color:var(--orange)}
+.act.primary:hover{background:var(--orange-bg)}
+
+/* PLACEHOLDER */
+.placeholder{text-align:center;padding:40px 16px;color:var(--t3)}
+.ph-icon{font-size:34px;margin-bottom:10px}
+.ph-txt{font-size:13px;color:var(--t2)}
+
+/* RESPONSIVE */
+@media(max-width:560px){
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .ci-grid{grid-template-columns:repeat(2,1fr)}
+  .sc-sit{display:none}
+}
+@media(max-width:380px){
+  .cat-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hdr">
+    <div class="hdr-eyebrow">Rent-A-Center</div>
+    <div class="hdr-title">Sales Training Simulator</div>
+    <div class="hdr-sub">Live roleplay &bull; Pre-built scenarios &bull; Real coaching</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-v" id="sv-done">0</div><div class="stat-l">Completed</div></div>
+    <div class="stat"><div class="stat-v" id="sv-exch">0</div><div class="stat-l">Exchanges</div></div>
+    <div class="stat"><div class="stat-v" id="sv-streak">0</div><div class="stat-l">Streak</div></div>
+  </div>
+
+  <div class="collapsible">
+    <button class="coll-toggle" onclick="toggleEl('nn-body','nn-arrow')">
+      <span>Non-Negotiables Quick Reference</span><span id="nn-arrow">&#9656;</span>
+    </button>
+    <div class="coll-body" id="nn-body">
+      <div class="nn-row"><span class="nn-num">1</span><span class="nn-txt"><b>Qualify tier first</b> &mdash; Free weeks cost nothing. Always deploy before touching price.</span></div>
+      <div class="nn-row"><span class="nn-num">2</span><span class="nn-txt"><b>Never negotiate against yourself</b> &mdash; Let them name a number. The first drop is always the biggest.</span></div>
+      <div class="nn-row"><span class="nn-num">3</span><span class="nn-txt"><b>Delivery speed is leverage</b> &mdash; In your home this week. Mean it. Competitors cannot always match it.</span></div>
+      <div class="nn-row"><span class="nn-num">4</span><span class="nn-txt"><b>Deploy in funnel order</b> &mdash; Tier then Rate then Discretionary. Never open with your last lever.</span></div>
+      <div class="nn-row"><span class="nn-num">5</span><span class="nn-txt"><b>Find the question behind the objection</b> &mdash; Too expensive means show value. Need to think means not sold yet.</span></div>
+      <div class="nn-row"><span class="nn-num">6</span><span class="nn-txt"><b>Close on logistics, not permission</b> &mdash; Assume yes. Ask delivery day. Never ask if they would like to go ahead.</span></div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Choose a scenario type</div>
+  <div class="cat-grid">
+    <button class="cat-btn" data-cat="walk-in" onclick="selectCat(this)">
+      <span class="cat-ic">&#128682;</span>
+      <span class="cat-nm">Walk-in</span>
+      <span class="cat-sb">New &amp; returning</span>
+    </button>
+    <button class="cat-btn" data-cat="cold-call" onclick="selectCat(this)">
+      <span class="cat-ic">&#128222;</span>
+      <span class="cat-nm">Cold call</span>
+      <span class="cat-sb">Warm &amp; cold leads</span>
+    </button>
+    <button class="cat-btn" data-cat="follow-up" onclick="selectCat(this)">
+      <span class="cat-ic">&#128260;</span>
+      <span class="cat-nm">Follow-up</span>
+      <span class="cat-sb">Leads &amp; callbacks</span>
+    </button>
+    <button class="cat-btn" data-cat="s1" onclick="selectCat(this)">
+      <span class="cat-ic">&#128203;</span>
+      <span class="cat-nm">Collections S1</span>
+      <span class="cat-sb">1-6 DPD</span>
+    </button>
+    <button class="cat-btn" data-cat="s2" onclick="selectCat(this)">
+      <span class="cat-ic">&#9888;</span>
+      <span class="cat-nm">Collections S2</span>
+      <span class="cat-sb">7-14 DPD</span>
+    </button>
+    <button class="cat-btn" data-cat="s3" onclick="selectCat(this)">
+      <span class="cat-ic">&#128308;</span>
+      <span class="cat-nm">Collections S3</span>
+      <span class="cat-sb">15-23 DPD</span>
+    </button>
+    <button class="cat-btn" data-cat="escalated" onclick="selectCat(this)">
+      <span class="cat-ic">&#128680;</span>
+      <span class="cat-nm">Escalated</span>
+      <span class="cat-sb">30+ DPD</span>
+    </button>
+    <button class="cat-btn" data-cat="payment" onclick="selectCat(this)">
+      <span class="cat-ic">&#128179;</span>
+      <span class="cat-nm">Payment visit</span>
+      <span class="cat-sb">Counter upsell</span>
+    </button>
+    <button class="cat-btn" data-cat="commitment" onclick="selectCat(this)">
+      <span class="cat-ic">&#129309;</span>
+      <span class="cat-nm">Commitment</span>
+      <span class="cat-sb">Setting &amp; recovery</span>
+    </button>
+    <button class="cat-btn" data-cat="trifecta" onclick="selectCat(this)">
+      <span class="cat-ic">&#11088;</span>
+      <span class="cat-nm">Trifecta promo</span>
+      <span class="cat-sb">Campaign close</span>
+    </button>
+    <button class="cat-btn" data-cat="autopay" onclick="selectCat(this)">
+      <span class="cat-ic">&#9989;</span>
+      <span class="cat-nm">AutoPay close</span>
+      <span class="cat-sb">Every visit</span>
+    </button>
+    <button class="cat-btn" data-cat="random" onclick="selectCat(this)">
+      <span class="cat-ic">&#127922;</span>
+      <span class="cat-nm">Random</span>
+      <span class="cat-sb">Surprise me</span>
+    </button>
+  </div>
+
+  <button class="gen-btn" id="gen-btn" onclick="generateScenario()" disabled>
+    Generate Scenario &#8594;
+  </button>
+
+  <div id="sc-area">
+    <div class="placeholder">
+      <div class="ph-icon">&#127919;</div>
+      <div class="ph-txt">Select a category above, then hit Generate Scenario to start training.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* =============================================================
+   DATA POOLS — Names, Products, Configs
+   ============================================================= */
+
+var FN = ["Marcus","Keisha","Robert","Angela","Devon","Tamara","Jerome","Linda","Carlos","Priya",
+          "Sandra","Tyrone","Nicole","Donna","Calvin","Darius","Rachel","Andre","Maria","James",
+          "Brianna","Tony","Patricia","Jasmine","Carl","Destiny","Lamont","Vanessa","Brian","Anita",
+          "Darnell","Latoya","Shawn","Crystal","Kevin","Michelle","Derrick","Tiffany","Anthony","Renee",
+          "Malik","Keandra","Terrance","Felicia","Damon","Simone","Jamal","Erica","Curtis","Danielle"];
+
+var LN = ["Williams","Davis","Johnson","Brown","Jones","Miller","Wilson","Moore","Taylor","Jackson",
+          "Harris","Martin","Thompson","White","Robinson","Clark","Lewis","Walker","Hall","Allen",
+          "Young","Adams","Green","Baker","Nelson","Carter","Mitchell","Perez","Roberts","Turner"];
+
+var TIERS = ["Gold","Gold","Platinum","Platinum","Platinum Club","Unknown","Unknown","Unknown"];
+
+var PRODUCTS_SALES = ["55-inch Smart TV","Washer and Dryer set","King bedroom set","Full living room set",
+                      "Gaming setup","Refrigerator","Queen bedroom set","Sectional couch","Laptop",
+                      "Dining room set","Chest freezer","65-inch 4K TV","Bunk bed set","Recliner set"];
+
+var PRODUCTS_COLL = ["Washer and Dryer","bedroom set","living room set","TV","refrigerator",
+                     "furniture set","washer","sectional","bedroom furniture","entertainment center"];
+
+var SITUATIONS = {
+  "walk-in": ["Came in to browse, TV stopped working last week",
+              "First time in, was referred by a neighbor",
+              "Returning browser, second visit this week",
+              "Walked in during lunch break, limited time",
+              "Never rented before, curious about pricing",
+              "Mentioned needing something for an upcoming move",
+              "Came in after seeing sign outside",
+              "Was referred by a coworker who rents here"],
+  "cold-call": ["In system, inactive for 4 months, answered first ring",
+                "Warm account, has rented twice before",
+                "Cold prospect from referral list",
+                "Past customer with 18-month gap",
+                "Answered but sounds busy",
+                "Was not expecting the call, neutral tone",
+                "Recognized the number, answered cautiously"],
+  "follow-up": ["Said call me Friday - you are calling Friday",
+                "Was a hot lead 2 days ago, now going quiet",
+                "Came in last week, left without signing",
+                "Texted about a deal, has not responded since",
+                "Said they would think about it, one week passed",
+                "Left a voicemail 3 days ago, finally answering"],
+  "s1": ["3 days past due, first time ever late",
+         "5 days past due, works odd hours",
+         "4 days late, mentioned money is tight this week",
+         "2 days past due, just got back from a trip",
+         "6 days late, completely forgot",
+         "3 days past, payment usually autopay but card expired"],
+  "s2": ["12 days past due, dodged two calls",
+         "9 days late, claims payment was already sent",
+         "11 days past, second broken promise this month",
+         "8 days late, paycheck was delayed",
+         "10 days past, been avoiding calls",
+         "7 days late, says situation changed this week"],
+  "s3": ["18 days past due, third contact attempt",
+         "21 days past, broken PTP twice",
+         "16 days late, sent a hostile text asking us to stop calling",
+         "19 days past, has not answered in a week",
+         "23 days late, claims a job loss",
+         "17 days past, neighbor confirmed they are home"],
+  "escalated": ["33 days past due, merchandise recovery imminent",
+                "31 days past, great history then suddenly went dark",
+                "38 days past, second escalation notice delivered",
+                "30 days past, has had excuses every week",
+                "35 days late, disconnected one phone number",
+                "42 days past, last chance before pickup"],
+  "payment": ["Coming in to pay, mentions their dryer has been acting up",
+              "Quick payment visit, talkative and in a good mood",
+              "Monthly payment, has earned weeks, never been upsold",
+              "Regular customer, autopay not yet set up",
+              "Paid last week, back again, seems happy with product",
+              "In a hurry, quick payment, potential seed moment"],
+  "commitment": ["Breaking second promise, sheepish about it",
+                 "Needs a firm PTP, keeps giving vague timelines",
+                 "Kept a commitment, calling to confirm and seed next step",
+                 "Broke PTP for third time, pattern emerging",
+                 "Emergency came up, genuine sounding excuse",
+                 "Paycheck delayed, wants to reset the date"],
+  "trifecta": ["Top customer, reaching out personally for Trifecta",
+               "Hot lead from last week, Trifecta is the hook",
+               "Called in about something else, pivot to Trifecta",
+               "Received the Trifecta text, called in to ask about it",
+               "Has been inactive, Trifecta is the re-engagement",
+               "Was almost ready last week, Trifecta tips the scale"],
+  "autopay": ["Just signed agreement, closing before they leave",
+              "Payment visit, autopay not set up, opportunity now",
+              "New customer, first week, enroll before they walk",
+              "Forgot to pay this week, perfect AutoPay moment",
+              "Mentioned being forgetful about bills in general",
+              "Just resolved a late payment, natural AutoPay conversation"]
+};
+
+var MOODS = {
+  "walk-in":    ["curious","hesitant","warm","rushed","motivated","open"],
+  "cold-call":  ["guarded","skeptical","neutral","busy","open","slightly warm"],
+  "follow-up":  ["lukewarm","avoiding","neutral","distracted","slightly warm","engaged"],
+  "s1":         ["apologetic","cooperative","stressed","easy-going","embarrassed","willing"],
+  "s2":         ["defensive","confrontational","avoidant","frustrated","evasive","making excuses"],
+  "s3":         ["resistant","hostile","desperate","resigned","nervous","closed off"],
+  "escalated":  ["hostile","tearful","defiant","defeated","nervous","angry"],
+  "payment":    ["friendly","talkative","pleasant","busy","happy","relaxed"],
+  "commitment": ["sheepish","evasive","apologetic","resistant","genuine","resigned"],
+  "trifecta":   ["warm","interested","curious","engaged","cautious","nostalgic"],
+  "autopay":    ["happy","neutral","unsure","open","resistant","indifferent"]
+};
+
+var OBJECTIONS = {
+  "walk-in":    ["weekly payment seems high","need to think about it","need to talk to spouse","cheaper elsewhere","total cost concern","just browsing"],
+  "cold-call":  ["bad time right now","not interested","call me back","just browsing","already have what I need","not right now"],
+  "follow-up":  ["still thinking","not right now","need to check budget","spouse not on board","what was the deal again","too busy right now"],
+  "s1":         ["can I pay this weekend","getting paid Friday","can I do partial","forgot about it","can it go to next week","card was declined"],
+  "s2":         ["already sent payment","do not have it right now","situation changed","need until end of month","will come in tomorrow","calling too much"],
+  "s3":         ["lost my job","cannot pay right now","stop calling","will call corporate","come get it then","need more time"],
+  "escalated":  ["talk to my lawyer","come get it then","going through a lot","need a month","nothing I can do","calling too much"],
+  "payment":    ["not adding anything today","maybe next time","I am good for now","not planning on it","let me think about it","do not need anything else"],
+  "commitment": ["something came up","cannot give a specific day","promise I will pay soon","need until next week","emergency happened","paycheck was delayed"],
+  "trifecta":   ["what is the catch","need to check with spouse","what happens after the promo","want to read the details","give me a day to decide","is the discount real"],
+  "autopay":    ["prefer to pay in person","do not give out bank info","will do it online later","what if I want to cancel","worried about overdraft","not ready for that"]
+};
+
+/* =============================================================
+   RESPONSE BANKS
+   All dialogue uses double quotes to avoid apostrophe syntax errors.
+   ============================================================= */
+
+var RB = {
+
+  "walk-in": {
+    open: [
+      "Yeah I just came in to look around. My TV went out on me last week and I have been putting it off.",
+      "I have never rented before so I am not totally sure how this works. My neighbor said to come check you out.",
+      "I was just walking by and decided to come in. What kind of deals do you have right now?",
+      "I need a washer bad but I was not sure about doing rent-to-own. Can you walk me through it?",
+      "My sister rents here and told me the payments are pretty manageable. I figured I would see for myself.",
+      "I came in before actually. I was not ready then but I think I am ready now to at least look.",
+      "My bedroom situation is bad. I have been sleeping on a mattress on the floor for three months.",
+      "I need a couch. My family is coming to visit next month and I have nothing in the living room."
+    ],
+    tier: [
+      "Wait, I already have free weeks on my account? I did not know that was a thing.",
+      "So my first payment would not be until how many weeks from now? Say that again.",
+      "That changes things honestly. I figured I would be paying right away.",
+      "Okay so I have it in my home for a month before I owe anything? That is not bad at all.",
+      "I did not realize my account came with those benefits. So what does the weekly actually come out to?",
+      "So as a Platinum member I get three free weeks automatically? I have been leaving that on the table?"
+    ],
+    discovery: [
+      "Honestly my TV is completely dead. Nothing on the screen at all.",
+      "I need a washer more than anything. The laundromat is killing me every week.",
+      "My couch broke two weeks ago and I have been sitting on a folding chair in my own living room.",
+      "A bedroom set is the big one for me. I have not had a real bed frame in over a year.",
+      "My refrigerator barely keeps things cold. I throw out food constantly.",
+      "Gaming setup honestly. I work from home and my setup is terrible."
+    ],
+    objection: [
+      "I mean it depends on what the weekly payment is. If it is too high I just cannot do it.",
+      "I need to talk to my wife first before I commit to anything today.",
+      "That is a little more than I was thinking weekly. Can we do any better than that?",
+      "I have to be real, I saw a place down the street that looked like it might be cheaper.",
+      "I do not know, I want to think on it a little more. This is a big decision for me."
+    ],
+    price_early: [
+      "Yeah that is my concern honestly. What is the weekly payment before we get into anything else?",
+      "I need to know the cost before I get too excited about something I cannot afford.",
+      "What is it weekly? That is the only number that matters to me right now.",
+      "Before you go further... what am I actually looking at per week on something like that?"
+    ],
+    soften: [
+      "Okay that makes more sense when you put it like that.",
+      "Alright, so with the free weeks factored in I would not see a bill until when?",
+      "That is actually not bad. So delivery would happen this week if I said yes today?",
+      "I am starting to see why my neighbor likes it here. What does the process look like from here?",
+      "Okay I am more interested now. So there is no big payment to get started?"
+    ],
+    close: [
+      "Alright yeah, Thursday works. The address is on file.",
+      "Friday afternoon is perfect. What do you need from me right now?",
+      "Okay let us do it. I have been putting this off too long already.",
+      "Friday works. Just tell me what you need to set it up.",
+      "Thursday. I am off that day so that is actually perfect."
+    ]
+  },
+
+  "cold-call": {
+    open: [
+      "Yeah I am here. What is this about?",
+      "I am kind of in the middle of something. Make it quick.",
+      "I saw this number come up a couple times. Who is this?",
+      "Go ahead, I have like two minutes.",
+      "I was not expecting a call. What do you need?",
+      "I know who this is. I used to rent from you all. What is going on?",
+      "I am at work but I can talk for a second. What is it?"
+    ],
+    tier: [
+      "Wait I have free weeks on my account? How long has that been sitting there?",
+      "So my old account still has benefits? I did not know you could carry those over.",
+      "Free weeks means I would not pay anything until after that period ends?",
+      "Okay that is something. So the first payment would not come until when exactly?",
+      "I did not know my account had anything on it still. What does that change about the weekly?"
+    ],
+    bad_time: [
+      "Yeah I really cannot talk right now. Can you try me back tomorrow?",
+      "I am driving. Not a good time at all.",
+      "I am at work. I cannot do this here.",
+      "Look I have like 30 seconds. What is the main thing?"
+    ],
+    discovery: [
+      "Honestly my washer stopped working two weeks ago and I have been putting off dealing with it.",
+      "I could use a TV for the bedroom. The one I have is ancient.",
+      "My couch is completely broken. I have been sitting on lawn chairs in my own apartment.",
+      "If I am being real, I need a washer-dryer combo more than anything right now.",
+      "A bedroom set. I have the basics but nothing real. Just a mattress on a frame."
+    ],
+    objection: [
+      "I already have what I need right now. Things are okay.",
+      "Things are pretty tight financially. I do not want to take on another payment.",
+      "I have been meaning to come in but life gets in the way. I am just not sure.",
+      "I do not make decisions over the phone. That is just how I am.",
+      "You caught me at a bad time. Can you call me back another day?"
+    ],
+    soften: [
+      "Okay that is actually not bad. So what would I be looking at weekly?",
+      "Alright you have my attention. What is the deal exactly?",
+      "Free weeks you said? What does that mean in practical terms?",
+      "I am listening. The delivery this week part got me. Say more.",
+      "Okay I am more open to it than I thought I would be. What is the next step?"
+    ],
+    close: [
+      "Alright yeah, Thursday works for delivery. What do you need from me?",
+      "Friday afternoon. Put me down for that.",
+      "Yeah set it up. I am done avoiding it honestly.",
+      "Okay let us do Thursday. What is the process from here?"
+    ]
+  },
+
+  "follow-up": {
+    open: [
+      "Oh yeah I remember you. I have just been really busy.",
+      "I was actually thinking about calling you back.",
+      "I still have not made up my mind if I am being honest.",
+      "I meant to call you. Things kind of piled up.",
+      "Yeah I remember. I have just been going back and forth on it.",
+      "I saw your number come up a couple times. I kept meaning to call back."
+    ],
+    tier: [
+      "Right, the free weeks. I keep forgetting that part changes the math.",
+      "So I would have it in my home before I even owe a payment? I always forget that.",
+      "Okay the free weeks are real. I thought that was just a sales thing but it actually applies to me.",
+      "That is what kept getting me. Knowing I would have it for a few weeks before paying makes it easier."
+    ],
+    objection: [
+      "I mean I am still not totally sure. I keep going back and forth.",
+      "I talked to my wife and she wants to think about it a little more.",
+      "I looked up the total cost and I got a little nervous about the number.",
+      "Nothing really changed. I am still on the fence.",
+      "I have just been busy. I have not had time to really focus on it.",
+      "My wife wants to see it in person before I commit to anything."
+    ],
+    soften: [
+      "I know I know. I have been dragging my feet and there is no good reason.",
+      "You are right that the deal is still there. I should just stop overthinking it.",
+      "Okay I am a little more ready than I was last week.",
+      "Honestly what is stopping me is just the commitment. But I do need the thing.",
+      "Nothing is going to change by waiting. I am still going to need it."
+    ],
+    close: [
+      "Alright yeah, let us just do it. Thursday.",
+      "Okay I am done waiting. Friday works for me.",
+      "Yes, get it set up. The address is the same one I gave you.",
+      "Let us get this done. I have been putting it off long enough."
+    ]
+  },
+
+  "s1": {
+    open: [
+      "Oh yeah, I am so sorry about that. It completely slipped my mind.",
+      "I was going to call you. I have been swamped at work all week.",
+      "I know I am a little late. When is it actually due?",
+      "I am embarrassed. I just forgot. Can I come in this week to take care of it?",
+      "Yeah I know about it. Things have been hectic. What do I owe exactly?",
+      "My card expired and I meant to update it. That is probably why it did not go through."
+    ],
+    cooperative: [
+      "Okay yeah I can come in Thursday. What time do you close?",
+      "I get paid Friday. Can I come in that afternoon?",
+      "I can do tomorrow. Will that stop any late fees?",
+      "Yeah I can bring that in. What is the exact amount?",
+      "I can do a partial today and the rest Friday. Does that work?"
+    ],
+    autopay: [
+      "Yeah that AutoPay thing sounds smart so I stop forgetting honestly.",
+      "How does that work? It just pulls automatically on the due date?",
+      "If it keeps me from dealing with this situation again then yes, set it up.",
+      "I have been meaning to do that. What do I need to provide to set it up?"
+    ],
+    objection: [
+      "I get paid Friday. Can I just come in then?",
+      "I do not have the full amount today. Can I do part of it?",
+      "I completely forgot. What is the best way to handle this so nothing happens?",
+      "Can you push it to next week? I am a little short right now."
+    ],
+    soften: [
+      "Okay yeah I will come in Thursday. Afternoon work for you?",
+      "Alright, I will take care of it. I do not want this to become a problem.",
+      "I can do tomorrow morning. What time does the store open?"
+    ]
+  },
+
+  "s2": {
+    open: [
+      "I have been meaning to call you. Things have been really tight lately.",
+      "I know, I know. I have not forgotten. I just do not have it right now.",
+      "I was going to come in. I just kept putting it off.",
+      "Look I am going through something right now. I am trying to work it out.",
+      "I got your messages. I have just been dealing with a lot and did not know what to say.",
+      "I am not ignoring you on purpose. I just did not know how to handle this."
+    ],
+    cooperative: [
+      "What if I bring half in Friday and the rest next week? Can we do that?",
+      "I can do something this week. Not the full amount but definitely something.",
+      "Friday I should have enough to catch up. Can we agree on that plan?",
+      "What is the minimum I need to bring in to keep the account from going further?"
+    ],
+    claim_sent: [
+      "I dropped cash off last week. Are you sure it did not get applied?",
+      "My husband said he called and paid over the phone. Let me check with him.",
+      "I thought my bank transfer went through. Let me pull up my account.",
+      "I sent a money order. It should have been there by Tuesday at the latest."
+    ],
+    objection: [
+      "I do not have the full amount. I am not making that up.",
+      "I know I am late but I am dealing with a real situation right now.",
+      "I have been trying but the money just has not been there.",
+      "Can we work out some kind of payment plan? I cannot do it all at once.",
+      "I am not ignoring you. I just do not have it right now."
+    ],
+    resistant: [
+      "I need until the end of the month. That is just the honest truth.",
+      "I can give you something but not everything. Take it or leave it.",
+      "Calling me every day is not going to make money appear any faster.",
+      "I am going to come in when I have the money. I cannot speed that up."
+    ],
+    soften: [
+      "Okay look, I can bring in something Friday. Not all of it but something real.",
+      "I do not want to lose the stuff. Can we work something out together?",
+      "I am not trying to dodge you. I am just in a really tight spot right now.",
+      "Friday I get paid. I can definitely bring something in that day."
+    ]
+  },
+
+  "s3": {
+    open: [
+      "I know why you are calling. I just do not have it.",
+      "I have been avoiding this because I am embarrassed. I am going through something real.",
+      "I know I have been dodging your calls. I just did not know what to say.",
+      "I am aware of how bad this looks. I just cannot get ahead right now.",
+      "I lost my job six weeks ago. I have been trying to figure out what to do.",
+      "I am not trying to keep your stuff. I am just not in a position to pay right now."
+    ],
+    minimum: [
+      "What is the minimum to keep this from going to the next level?",
+      "If I bring in something partial this week, does that hold anything off?",
+      "What do I need to bring in to buy myself a little more time?",
+      "Is there any kind of arrangement you can put together for my situation?"
+    ],
+    hostile: [
+      "You can call all you want. I told you I do not have it.",
+      "What do you want me to say? I cannot pay what I do not have.",
+      "I am not picking up because there is nothing new to tell you.",
+      "Do what you have to do. I cannot stop you."
+    ],
+    objection: [
+      "I lost my job. What exactly do you want me to do about that?",
+      "My situation changed completely. This is not something I planned.",
+      "I am not in a position to pay. That is not a negotiation.",
+      "If I had the money I would have paid already. I am not doing this on purpose.",
+      "I need more time. That is just the honest reality."
+    ],
+    soften: [
+      "I do not want to lose it. What is the bare minimum I can do right now?",
+      "Look I know this is serious. I am not walking away from it. I just need flexibility.",
+      "I do not want it to get to the next step. What will actually stop that?",
+      "Is there anything at all you can work out for someone in my situation?"
+    ],
+    resolve: [
+      "Okay what if I come in Friday with whatever I have on me?",
+      "I can do something small today. It is not everything but it is real.",
+      "Friday I will have something concrete. Can you hold off until then?",
+      "Alright. Here is what I can actually do. Let me tell you."
+    ]
+  },
+
+  "escalated": {
+    open: [
+      "I know this is about the account. I just do not have anything right now.",
+      "Whatever you have to do. I cannot pay what I do not have.",
+      "I have been dealing with a crisis. I know how bad this is.",
+      "I have been expecting this call honestly. I just did not know when.",
+      "Is this about coming to pick up the furniture? Because I am not home right now."
+    ],
+    desperate: [
+      "What happens if I bring in something today? Does that change anything at all?",
+      "If I get you something this week, does that stop the next step?",
+      "I do not want to lose everything. What can I actually do right now to prevent that?",
+      "What is the absolute minimum that keeps this from going further?"
+    ],
+    hostile: [
+      "Come and get it then. I cannot pay. That is the simple truth.",
+      "I am not arguing with you. There is no money. End of conversation.",
+      "Do what you have to do. You are not getting blood from a stone.",
+      "Send whoever you need to send. I cannot stop you."
+    ],
+    tearful: [
+      "I just... I am going through so much right now. I am so sorry.",
+      "I know this is not your fault. I am just in a really bad place.",
+      "I do not want to lose my stuff. I have had it for two years. It is all I have.",
+      "I have always paid on time before all this. This is not who I am."
+    ],
+    soften: [
+      "What if I came in today with whatever I have in my wallet? Is that something?",
+      "Is there any kind of hardship arrangement? Anything at all for someone in my position?",
+      "I want to fix this. I am just not sure what fixing it actually looks like right now.",
+      "I hear you. What is the one thing I can do today to buy myself time?"
+    ]
+  },
+
+  "payment": {
+    open: [
+      "Hey, just here to make my payment. It is under my name.",
+      "Quick payment. In and out. That is all I need today.",
+      "Just dropping off my weekly. It has been a good week honestly.",
+      "Here to pay. My dryer has actually been making a weird noise lately, just so you know.",
+      "Just the usual payment. Love the couch by the way. Best decision I made."
+    ],
+    upsell_interested: [
+      "What kind of deal are we talking? Like what would the weekly be?",
+      "Oh yeah? What product are you thinking of for me specifically?",
+      "My dryer actually has not been working right. What do you have for that?",
+      "I was literally just thinking about that. What is available this week?",
+      "As a Platinum member, what does that deal actually look like for me?"
+    ],
+    upsell_resistant: [
+      "Not today. Just the payment and I need to get going.",
+      "I am good right now. I do not need anything else at the moment.",
+      "Maybe next time. I am in a hurry today honestly.",
+      "I appreciate you mentioning it but I am not adding anything right now.",
+      "I just came in to pay. I am not really in shopping mode today."
+    ],
+    autopay: [
+      "How does that work exactly? It just comes out the same day every week?",
+      "Yeah I have been meaning to set that up actually. I keep forgetting.",
+      "I kind of like coming in but I guess that does make more sense.",
+      "As long as I can cancel it if I need to, sure, let us do it.",
+      "Yeah okay set it up. I am tired of having to remember to come in."
+    ],
+    soften: [
+      "Okay what are we actually talking about? What is the weekly on that?",
+      "Tell me more. I do have a minute.",
+      "How much with my tier discount factored in?",
+      "I mean what product specifically are you thinking?"
+    ]
+  },
+
+  "commitment": {
+    open: [
+      "I know I said Thursday and I am really sorry. Something came up.",
+      "I was going to call you. I could not make it like I said I would.",
+      "I know I missed it. I have an explanation but I know that does not change it.",
+      "I am embarrassed about missing that. I genuinely intended to pay.",
+      "Yeah I know. I did not forget. I ran into a real problem that day."
+    ],
+    specific: [
+      "I can do Friday. That is as specific as I can be right now.",
+      "Thursday by noon. I will be there. I am putting it in my phone right now.",
+      "Friday before two. That is when I will have the money.",
+      "Saturday morning first thing. I promise this time.",
+      "Thursday. I will come in before I do anything else that day."
+    ],
+    vague: [
+      "Sometime this week. I just do not know exactly which day yet.",
+      "When I have the money. I cannot give you a day I am not sure about.",
+      "Soon. I am working on getting it together.",
+      "This week for sure. I just need to see how things shake out day by day."
+    ],
+    objection: [
+      "Something came up that was completely out of my control.",
+      "I had a family situation. It had nothing to do with the payment.",
+      "I am not trying to avoid this. Something unexpected happened.",
+      "My paycheck was delayed by two days. That is why I missed Thursday.",
+      "I am not making excuses. It just genuinely did not work out."
+    ],
+    soften: [
+      "You are right. Let me commit to a real day. Friday by noon. That is real.",
+      "I hear you. I need to stop being vague about this. Thursday at noon.",
+      "Okay a specific day. Friday. I will be there by one. I mean it this time.",
+      "Alright I am committing right now. Thursday by noon. Hold me to it."
+    ]
+  },
+
+  "trifecta": {
+    open: [
+      "I got your text about this Trifecta thing. What exactly is it?",
+      "Yeah I saw the message. A month free and lower payments? What is the catch?",
+      "I have been a customer for a while. This is the first time I have heard about this program.",
+      "The text said something about a month free and 25 percent off ownership. Is that real?",
+      "Tell me more. The message got my attention."
+    ],
+    catch: [
+      "So what is the catch? That sounds too good to just be a deal.",
+      "There has to be something I am missing. What is the fine print on this?",
+      "Is this for real or does it sound better than it actually is?",
+      "What does my payment look like after the free month is up?",
+      "I want to understand exactly what I am agreeing to before I say yes to anything."
+    ],
+    interested: [
+      "Okay walk me through the numbers. What am I paying weekly after the free period?",
+      "The month free is completely real? Like zero payments for a full month?",
+      "So I get the month free and my rate is 15 percent lower going forward? That is a real deal.",
+      "That is actually a solid offer if what you are saying is accurate.",
+      "I am interested. What do I need to do to get in on this?"
+    ],
+    objection: [
+      "I need to check with my husband first. He likes to be involved in these decisions.",
+      "Can I think about it until tomorrow? I do not want to rush anything.",
+      "What happens after the promotion is over? What do I pay then exactly?",
+      "I am interested but I want to read the details before I say yes."
+    ],
+    soften: [
+      "Okay that actually sounds solid. Walk me through it one more time.",
+      "So the 25 percent off is off the ownership price? Not the weekly?",
+      "If all three of those stack at the same time that is a real deal.",
+      "Alright I am more interested now than I was a minute ago. What do I do?"
+    ],
+    close: [
+      "Okay yeah, let us do it. Can I come in tomorrow?",
+      "Thursday works for me. What time do I need to be there by?",
+      "Yeah I am in. I am not going to find a better deal than this. What is next?",
+      "Set it up. This ends Saturday so I need to move on it anyway."
+    ]
+  },
+
+  "autopay": {
+    open: [
+      "I want to keep paying in person honestly. I like coming in.",
+      "I do not really want my bank info sitting in a system somewhere.",
+      "I forgot about it. I will just handle it online myself.",
+      "I am not great with technology stuff. How does this even work exactly?",
+      "What if I want to cancel it? Is that hard to do?"
+    ],
+    security: [
+      "I do not give my bank information out to anyone. That is just my personal rule.",
+      "How do I know my information stays safe in your system?",
+      "I have heard stories about this kind of thing. I am just cautious.",
+      "What if my card gets compromised? Does it still pull?"
+    ],
+    curious: [
+      "So it just pulls on the due date automatically every week?",
+      "I would literally never have to worry about forgetting again?",
+      "What happens if there is not enough in my account that day?",
+      "Can I change the date it pulls if I need to?"
+    ],
+    objection: [
+      "I will set it up myself when I get home tonight.",
+      "I am not ready to do that today. Maybe next time.",
+      "I like knowing I paid when I physically walk out of here.",
+      "Let me think about it. I do not want to commit to that right now."
+    ],
+    soften: [
+      "Okay so it is the exact same amount every week just automatic?",
+      "If I can cancel anytime that makes me less nervous about it.",
+      "I guess it does make sense. I am just old fashioned about money stuff.",
+      "How long does it actually take to set up?"
+    ],
+    close: [
+      "Okay fine, set it up. Here is my card.",
+      "Alright, two minutes you said. Let us do it right now.",
+      "Yeah okay. I am tired of driving here every week if I am being real.",
+      "Set it up. Just make sure I get a confirmation somehow."
+    ]
+  }
+
+};
+
+/* =============================================================
+   SCRIPTS REFERENCE per category
+   ============================================================= */
+
+var SCRIPTS = {
+  "walk-in": [
+    '"Hey, welcome in! I am [Name] — what is going on at home that we can get handled for you?"',
+    '"What would a weekly payment need to look like for this to feel like a no-brainer?"',
+    '"As a [Tier] member you have got [X] weeks on us — first payment is not until [date]. Thursday or Friday — which works better for delivery?"',
+    '"What would you get if the cost to start was low and it arrived this week? Because both of those things are true right now."',
+    '"Before we even talk numbers — as a [Tier] member, you have already got [X] weeks on us. That is already yours."'
+  ],
+  "cold-call": [
+    '"Hey [Name] — [Your Name] from Rent-A-Center on [Street]. Did I grab you in the middle of something?"',
+    '"I will be quick — I have got something that actually makes sense for you right now. What have you been needing?"',
+    '"Before you go — we move things in this week, low move-in, no long commitment. After you hang up that is still true, but you would be starting from scratch. Worth 20 more seconds?"',
+    '"Perfect — what is the best address for delivery?"'
+  ],
+  "follow-up": [
+    '"Following up like I said I would. The deal is still there."',
+    '"What changed for you since we talked? I want to make sure I have the right solution."',
+    '"Your member weeks do not expire. What changes later that is not true right now?"',
+    '"I want you to be my first call when you are ready — what is the best day this week?"'
+  ],
+  "s1": [
+    '"Hi [Name] — [CAR] from [Store]. Had a payment come due recently — did everything go okay?"',
+    '"You are just [X] days past — if you can get this in this week we will get you squared away. Would [day] or [day] work?"',
+    '"I can set up AutoPay right now so you never worry about a due date again. Two minutes."'
+  ],
+  "s2": [
+    '"Hi [Name] — I need a couple minutes. It is about your account."',
+    '"I will be straight — [X] days past due and I cannot let this go without a plan. What can we set up today?"',
+    '"I need a payment amount and a specific date. What can you do?"'
+  ],
+  "s3": [
+    '"[Name] — I need to speak with you directly. [X] days past due. This is serious."',
+    '"I am not here to pressure you. Give me a payment amount and a date and I will hold this. What can you do?"',
+    '"Every conversation ends with a confirmed plan today. Payment, date, or escalation — those are the options."'
+  ],
+  "escalated": [
+    '"Hi [Name] — this account is out of my hands unless we resolve it today."',
+    '"I am giving you the last opportunity before next steps begin. What can we do right now?"',
+    '"I hear you. Here is what I can do — I need something confirmed today. What amount, what day."'
+  ],
+  "payment": [
+    '"While I have you — is there anything at home not working or that you wish you had? We have strong deals this week."',
+    '"You have got [X] weeks earned on your account as a [Tier] member — that is already yours. Takes nothing to add something."',
+    '"I can set up AutoPay right now so you never worry about a due date again. Two minutes."'
+  ],
+  "commitment": [
+    '"What day this week can you take care of this? And what time on that day?"',
+    '"So I have you down for $[X] on [day] by [time]. I will follow up that morning — does that work?"',
+    '"What changed? I am not here to judge — I need to know so we can build a plan that actually holds."'
+  ],
+  "trifecta": [
+    '"You are one of our better customers — we are running Trifecta, our biggest program of the year. A month free, 15 percent lower payment, 25 percent off ownership. All three stacked."',
+    '"This ends Saturday — today or tomorrow work better to come in?"',
+    '"Hey [Name], [Your Name] at RAC. We are running Trifecta — a month free, lower rate, significant savings. Call me and ask for me directly."'
+  ],
+  "autopay": [
+    '"I can set up AutoPay right now so you never worry about a due date again. Two minutes. What card or bank info do you have available?"',
+    '"It is the same as paying manually — except you never accidentally miss it. You can cancel it anytime."',
+    '"This keeps your account in perfect standing automatically. What card works best for you?"'
+  ]
+};
+
+/* =============================================================
+   OBJECTION PIVOTS
+   ============================================================= */
+
+var PIVOTS = [
+  {lbl:"Too expensive",   txt:'"Tell me the number. What does it need to be to say yes right now?"'},
+  {lbl:"Let me think",    txt:'"What is the one thing holding you back? Let me address it before you go."'},
+  {lbl:"Call me back",    txt:'"Your member weeks do not expire. What changes later that is not true right now?"'},
+  {lbl:"Need spouse",     txt:'"What do they need to hear to say yes? Let me give you exactly that."'},
+  {lbl:"Cheaper elsewhere",txt:'"Fair — what are they quoting? Here is what is different: low move-in, earned weeks, delivery this week."'},
+  {lbl:"Just browsing",   txt:'"What would you get if the cost to start was low and it arrived this week?"'},
+  {lbl:"Not right now",   txt:'"What changes for you later that is not true right now?"'},
+  {lbl:"No money today",  txt:'"What can you do today — even partial? Something on account keeps it active."'}
+];
+
+/* =============================================================
+   COACHING BANKS
+   ============================================================= */
+
+var COACHING = {
+  used_tier_good:     "Good — you deployed the tier and free weeks before touching price. That is your zero-cost lever and it completely reframes the conversation. Keep that habit.",
+  missed_tier:        "You did not mention the tier or earned free weeks. That is always your first move on any sales scenario because it costs you nothing. Check tier, say the free weeks out loud, then talk price. Never skip that step.",
+  used_discovery:     "Good discovery work. You asked what they needed before pitching anything. That is the right sequence.",
+  missed_discovery:   "You went into product or price without asking what they actually need. Lead with discovery every time: what is not working, what do they wish they had, what would make this a no-brainer? Then present.",
+  closed_logistics:   "Strong close. You asked for the delivery day or a specific date and time instead of asking permission. That is exactly how you close — assume yes, ask for the day.",
+  missed_close:       "You missed the close on logistics. When the customer signals interest, ask for the delivery day: Thursday or Friday? Do not ask if they want to go ahead. Assume yes and ask for the specific day.",
+  led_with_price:     "You mentioned price before doing discovery. That puts you on defense before you have built any value. Sequence matters: need first, tier second, then let them name a number.",
+  good_pivot:         "Nice objection handling. You stayed in the conversation instead of accepting the no.",
+  missed_pivot:       "When the customer pushed back, you could have used an objection pivot instead of restating the offer. Find the question behind the objection.",
+  good_commitment:    "You locked a specific day and time. That is the only kind of commitment that actually holds.",
+  vague_commitment:   "You got a vague timeline instead of a specific day and time. A promise without a date is not a promise. Always confirm: what day, what time, what amount.",
+  good_escalation:    "You created urgency and a clear consequence without being aggressive. That is the right tone at this stage.",
+  missed_urgency:     "At this stage you need to name the consequence clearly. Not as a threat, just as a fact. Make sure the customer understands what happens if there is no plan today.",
+  good_autopay:       "Clean AutoPay close. You framed it as protection for them rather than convenience for the store.",
+  missed_autopay:     "You did not attempt the AutoPay close. That should happen on every visit and every new agreement. Two minutes and it prevents future collections issues."
+};
+
+/* =============================================================
+   STATE
+   ============================================================= */
+
+var selectedCat = null;
+var sc = null;
+var stage = 0;
+var flags = {};
+var sDone = 0, sExch = 0, sStreak = 0;
+
+/* =============================================================
+   HELPERS
+   ============================================================= */
+
+function rand(arr) {
+  if (!arr || arr.length === 0) return "...";
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function toggleEl(bodyId, arrowId) {
+  var b = document.getElementById(bodyId);
+  var a = document.getElementById(arrowId);
+  var open = b.classList.toggle("open");
+  if (a) a.innerHTML = open ? "&#9662;" : "&#9656;";
+}
+
+function updateStats() {
+  document.getElementById("sv-done").textContent   = sDone;
+  document.getElementById("sv-exch").textContent   = sExch;
+  document.getElementById("sv-streak").textContent = sStreak;
+}
+
+/* =============================================================
+   CATEGORY SELECTION
+   ============================================================= */
+
+function selectCat(btn) {
+  document.querySelectorAll(".cat-btn").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  selectedCat = btn.dataset.cat;
+  document.getElementById("gen-btn").disabled = false;
+}
+
+/* =============================================================
+   SCENARIO GENERATION
+   ============================================================= */
+
+function generateScenario() {
+  if (!selectedCat) return;
+
+  var realCat = selectedCat === "random"
+    ? ["walk-in","cold-call","follow-up","s1","s2","s3","escalated","payment","commitment","trifecta","autopay"][Math.floor(Math.random() * 11)]
+    : selectedCat;
+
+  var fname = rand(FN);
+  var lname = rand(LN);
+  var name  = fname + " " + lname;
+  var tier  = rand(TIERS);
+  var prod  = ["s1","s2","s3","escalated"].includes(realCat) ? rand(PRODUCTS_COLL) : rand(PRODUCTS_SALES);
+  var mood  = rand(MOODS[realCat] || MOODS["walk-in"]);
+  var obj   = rand(OBJECTIONS[realCat] || OBJECTIONS["walk-in"]);
+  var sit   = rand(SITUATIONS[realCat] || SITUATIONS["walk-in"]);
+
+  var dpd = 0, bal = 0;
+  if (realCat === "s1")        { dpd = Math.floor(Math.random()*6)+1;  bal = Math.floor(Math.random()*150)+50; }
+  if (realCat === "s2")        { dpd = Math.floor(Math.random()*8)+7;  bal = Math.floor(Math.random()*350)+150; }
+  if (realCat === "s3")        { dpd = Math.floor(Math.random()*9)+15; bal = Math.floor(Math.random()*550)+350; }
+  if (realCat === "escalated") { dpd = Math.floor(Math.random()*16)+30; bal = Math.floor(Math.random()*800)+600; }
+  if (realCat === "commitment" && Math.random() > 0.4) {
+    dpd = Math.floor(Math.random()*12)+5;
+    bal = Math.floor(Math.random()*400)+100;
+  }
+
+  var tierWks = {Gold:"2 weeks", Platinum:"3 weeks", "Platinum Club":"4 weeks", Unknown:"0 — check tier"}[tier] || "0";
+
+  sc = {
+    cat: realCat, name: name, tier: tier, tierWks: tierWks,
+    prod: prod, mood: mood, obj: obj, sit: sit, dpd: dpd, bal: bal,
+    bank: RB[realCat] || RB["walk-in"]
+  };
+
+  stage = 0;
+  flags = {usedTier:false, usedDiscovery:false, closedLogistics:false, ledPrice:false, goodPivot:false, exchanges:0};
+
+  renderScenario();
+}
+
+/* =============================================================
+   RENDER SCENARIO
+   ============================================================= */
+
+function renderScenario() {
+  var s = sc;
+  var cat = s.cat;
+
+  var badgeColors = {
+    "walk-in":"#4A8FE0","cold-call":"#2EBD6A","follow-up":"#2EBD6A",
+    "s1":"#E09000","s2":"#E09000","s3":"#E04444",
+    "escalated":"#E04444","payment":"#4A8FE0","commitment":"#E09000",
+    "trifecta":"#8B5CF6","autopay":"#2EBD6A"
+  };
+  var catNames = {
+    "walk-in":"Walk-in","cold-call":"Cold Call","follow-up":"Follow-up",
+    "s1":"Collections S1","s2":"Collections S2","s3":"Collections S3",
+    "escalated":"Escalated","payment":"Payment Visit",
+    "commitment":"Commitment","trifecta":"Trifecta Promo","autopay":"AutoPay Close"
+  };
+  var bc = badgeColors[cat] || "#8888A0";
+  var cn = catNames[cat] || cat;
+
+  var diffs = [
+    {cats:["walk-in","cold-call","follow-up","payment","trifecta","autopay"], label:"Beginner–Medium",  color:"#2EBD6A"},
+    {cats:["s1","commitment"],                                                label:"Medium",           color:"#E09000"},
+    {cats:["s2"],                                                             label:"Medium-Hard",      color:"#E04444"},
+    {cats:["s3","escalated"],                                                 label:"Hard",             color:"#E04444"}
+  ];
+  var diff = diffs[0];
+  for (var di = 0; di < diffs.length; di++) {
+    if (diffs[di].cats.indexOf(cat) !== -1) { diff = diffs[di]; break; }
+  }
+
+  var custHtml = '<div class="ci-item"><div class="ci-lbl">Customer</div><div class="ci-val">' + s.name + '</div></div>' +
+    '<div class="ci-item"><div class="ci-lbl">Tier</div><div class="ci-val">' + s.tier + '</div></div>' +
+    '<div class="ci-item"><div class="ci-lbl">Free Weeks</div><div class="ci-val">' + s.tierWks + '</div></div>' +
+    '<div class="ci-item"><div class="ci-lbl">Product</div><div class="ci-val">' + s.prod + '</div></div>';
+  if (s.dpd > 0) {
+    custHtml += '<div class="ci-item"><div class="ci-lbl">Days Past Due</div><div class="ci-val danger">' + s.dpd + ' DPD</div></div>';
+    custHtml += '<div class="ci-item"><div class="ci-lbl">Balance</div><div class="ci-val danger">$' + s.bal + '</div></div>';
+  }
+
+  var scripts = SCRIPTS[cat] || [];
+  var scriptLines = scripts.map(function(l) { return '<div class="sline">' + l + '</div>'; }).join("");
+
+  var pillsHtml = PIVOTS.map(function(p, i) {
+    return '<button class="pill" data-idx="' + i + '" onclick="insertPivot(this)">' + p.lbl + '</button>';
+  }).join("");
+
+  var html = '<div class="sc-card">' +
+    '<div class="sc-hdr">' +
+      '<span class="sc-badge" style="background:' + bc + '25;color:' + bc + ';border:1px solid ' + bc + '40">' + cn + '</span>' +
+      '<span class="sc-sit">' + s.sit + '</span>' +
+      '<span class="sc-diff" style="color:' + diff.color + '">' + diff.label + '</span>' +
+    '</div>' +
+    '<div class="sc-body">' +
+      '<div class="ci-grid">' + custHtml + '</div>' +
+      '<div class="sit-box">' +
+        '<div class="sit-lbl">Entering mood &amp; likely objection</div>' +
+        '<div class="sit-txt">Mood: <b>' + s.mood + '</b> &nbsp;&middot;&nbsp; Expect: <i>"' + s.obj + '"</i></div>' +
+      '</div>' +
+      '<div class="chat-wrap">' +
+        '<div class="chat-msgs" id="chat-msgs"></div>' +
+        '<div class="input-row">' +
+          '<input type="text" id="rep-inp" placeholder="Type your response..." />' +
+          '<button id="send-btn" onclick="sendMsg()">Send</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pills-section">' +
+        '<div class="pills-lbl">Objection pivots — tap to insert</div>' +
+        '<div class="pills">' + pillsHtml + '</div>' +
+      '</div>' +
+      '<div class="script-wrap">' +
+        '<button class="script-toggle" onclick="toggleScripts()">' +
+          '<span>Script reference for this scenario</span>' +
+          '<span id="script-arrow">&#9656;</span>' +
+        '</button>' +
+        '<div class="script-lines" id="script-lines">' + scriptLines + '</div>' +
+      '</div>' +
+      '<div class="coaching" id="coaching-box">' +
+        '<div class="coaching-hdr">Coaching Feedback</div>' +
+        '<div class="coaching-txt" id="coaching-txt"></div>' +
+      '</div>' +
+      '<div class="actions">' +
+        '<button class="act primary" onclick="endScenario()">End &amp; Get Coaching</button>' +
+        '<button class="act" onclick="generateScenario()">New Scenario</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  document.getElementById("sc-area").innerHTML = html;
+
+  document.getElementById("rep-inp").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendMsg();
+  });
+
+  appendMsg("system", "", "Scenario loaded. The customer will speak first. Type your response and hit Send.");
+  setTimeout(function() { customerOpen(); }, 350);
+}
+
+/* =============================================================
+   CHAT
+   ============================================================= */
+
+function customerOpen() {
+  var line = rand(sc.bank.open || [""]);
+  appendMsg("customer", sc.name, line);
+  stage = 1;
+}
+
+function sendMsg() {
+  var inp = document.getElementById("rep-inp");
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (!val) return;
+  inp.value = "";
+  inp.focus();
+
+  appendMsg("rep", "You", val);
+  flags.exchanges++;
+  sExch++;
+  updateStats();
+
+  analyzeFlags(val);
+
+  setTimeout(function() {
+    var response = pickResponse(val);
+    appendMsg("customer", sc.name, response);
+    stage = Math.min(stage + 1, 5);
+  }, 500);
+}
+
+function analyzeFlags(txt) {
+  var lo = txt.toLowerCase();
+  if (/tier|gold|platinum|free week|weeks on|already yours|earned|no charge/.test(lo)) flags.usedTier = true;
+  if (/what.*need|been needing|wish.*had|one thing|looking for|missing|not working/.test(lo)) flags.usedDiscovery = true;
+  if (/thursday|friday|monday|tuesday|wednesday|saturday|what day|delivery day|which day|address|best day/.test(lo)) flags.closedLogistics = true;
+  if (stage <= 1 && /price|cost|how much|weekly|per week|\$\d/.test(lo)) flags.ledPrice = true;
+  if (/tell me the number|what does it need to be|address that|one thing holding|let me give you|what changes/.test(lo)) flags.goodPivot = true;
+}
+
+function pickResponse(repTxt) {
+  var lo = repTxt.toLowerCase();
+  var bank = sc.bank;
+  var cat  = sc.cat;
+
+  // Tier / free weeks mentioned
+  if (/tier|gold|platinum|free week|weeks on|already yours|earned/.test(lo)) {
+    return rand(bank.tier || bank.soften || ["That is actually better than I thought."]);
+  }
+
+  // Delivery close / logistics
+  if (/thursday|friday|monday|tuesday|saturday|what day|delivery day|address|which day works/.test(lo)) {
+    return rand(bank.close || bank.cooperative || ["Yeah that day works. What do you need from me?"]);
+  }
+
+  // AutoPay mention
+  if (/autopay|auto pay|automatic|set it up|auto-pay/.test(lo)) {
+    return rand(bank.autopay || bank.soften || ["How does that work exactly?"]);
+  }
+
+  // Discovery questions
+  if (/what.*need|been needing|wish.*had|one thing|what.*missing|what.*not working/.test(lo)) {
+    return rand(bank.discovery || bank.soften || ["Honestly I have been needing a lot of things."]);
+  }
+
+  // Collections: payment arrangement mentioned
+  if (["s1","s2","s3","escalated","commitment"].indexOf(cat) !== -1) {
+    if (/arrange|plan|partial|minimum|bring in|come in|friday|thursday|by noon/.test(lo)) {
+      if (stage >= 2) return rand(bank.cooperative || bank.soften || ["Okay what is the minimum?"]);
+    }
+    // Urgency / consequence mentioned
+    if (/escalate|manager|next steps|serious|out of my hands|cannot let this/.test(lo)) {
+      if (cat === "escalated") return rand(bank.desperate || bank.soften || ["What can I do to stop this?"]);
+      return rand(bank.minimum || bank.soften || ["What do I need to bring in minimum?"]);
+    }
+  }
+
+  // Price mentioned early
+  if (stage <= 1 && /price|cost|how much|weekly|per week/.test(lo)) {
+    return rand(bank.price_early || bank.objection || ["Yeah that is my concern. What is the weekly payment?"]);
+  }
+
+  // Stage-based defaults
+  if (stage === 1) return rand(bank.objection || ["I am not sure yet."]);
+  if (stage === 2) return rand(bank.resistant || bank.objection || ["I hear you but I am still not sure."]);
+  if (stage === 3) return rand(bank.soften    || bank.cooperative || ["Okay that is making more sense."]);
+  if (stage >= 4)  return rand(bank.close     || bank.cooperative || ["Alright, let us figure out the details."]);
+
+  return rand(bank.soften || ["Okay, tell me more."]);
+}
+
+function appendMsg(type, label, text) {
+  var chat = document.getElementById("chat-msgs");
+  if (!chat) return;
+  var div = document.createElement("div");
+  div.className = "msg " + type;
+  div.innerHTML = (label ? '<div class="msg-lbl">' + escHtml(label) + '</div>' : "") +
+    '<div class="bubble">' + escHtml(text) + '</div>';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
+
+/* =============================================================
+   OBJECTION PIVOT INSERT
+   ============================================================= */
+
+function toggleScripts() {
+  var b = document.getElementById("script-lines");
+  var a = document.getElementById("script-arrow");
+  if (!b) return;
+  var open = b.classList.toggle("open");
+  if (a) a.innerHTML = open ? "&#9662;" : "&#9656;";
+}
+
+function insertPivot(btn) {
+  var idx = parseInt(btn.dataset.idx, 10);
+  var inp = document.getElementById("rep-inp");
+  if (inp && PIVOTS[idx]) {
+    inp.value = PIVOTS[idx].txt;
+    inp.focus();
+  }
+}
+
+/* =============================================================
+   END SCENARIO + COACHING
+   ============================================================= */
+
+function endScenario() {
+  if (flags.exchanges < 2) {
+    alert("Have at least 2 exchanges before requesting coaching.");
+    return;
+  }
+
+  var cat = sc.cat;
+  var isSales = ["walk-in","cold-call","follow-up","payment","trifecta"].indexOf(cat) !== -1;
+  var isColl  = ["s1","s2","s3","escalated"].indexOf(cat) !== -1;
+
+  var tips = [];
+
+  // Tier coaching
+  if (isSales || cat === "trifecta") {
+    if (flags.usedTier) tips.push(COACHING.used_tier_good);
+    else                tips.push(COACHING.missed_tier);
+  }
+
+  // Discovery coaching
+  if (["walk-in","cold-call","follow-up"].indexOf(cat) !== -1) {
+    if (flags.usedDiscovery) tips.push(COACHING.used_discovery);
+    else                     tips.push(COACHING.missed_discovery);
+  }
+
+  // Close on logistics
+  if (flags.closedLogistics) tips.push(COACHING.closed_logistics);
+  else if (isSales || cat === "commitment") tips.push(COACHING.missed_close);
+
+  // Price too early
+  if (flags.ledPrice) tips.push(COACHING.led_with_price);
+
+  // Objection pivot
+  if (flags.goodPivot) tips.push(COACHING.good_pivot);
+
+  // Collections-specific
+  if (isColl || cat === "s3" || cat === "escalated") {
+    if (flags.closedLogistics) tips.push(COACHING.good_commitment);
+    else                       tips.push(cat === "escalated" ? COACHING.missed_urgency : COACHING.vague_commitment);
+  }
+
+  // AutoPay
+  if (cat === "autopay" || cat === "payment" || cat === "s1") {
+    if (/autopay|auto pay/i.test(repTranscript())) tips.push(COACHING.good_autopay);
+    else tips.push(COACHING.missed_autopay);
+  }
+
+  // Limit to 3 most relevant tips
+  tips = tips.slice(0, 3);
+
+  var box = document.getElementById("coaching-box");
+  var txt = document.getElementById("coaching-txt");
+  if (box && txt) {
+    box.classList.add("show");
+    txt.textContent = tips.join(" ");
+  }
+
+  sDone++;
+  sStreak++;
+  updateStats();
+}
+
+function repTranscript() {
+  var msgs = document.querySelectorAll("#chat-msgs .msg.rep .bubble");
+  var out = "";
+  msgs.forEach(function(m) { out += " " + m.textContent; });
+  return out;
+}
+
+</script>
+</body>
+</html>
